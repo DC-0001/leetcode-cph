@@ -4,7 +4,7 @@ import * as path from 'path';
 
 export async function fetchTestCases(url: string) {
     let browser;
-    let testCases: { inputs: any[]; outputs: any[] } = { inputs: [], outputs: [] };
+    let testCases: { inputs: string[]; outputs: string[] } = { inputs: [], outputs: [] };
     try {
         // Launching the Puppeteer through browser
         browser = await puppeteer.launch({ headless: false }); // Opens browser 
@@ -39,8 +39,8 @@ export async function fetchTestCases(url: string) {
     // Split text to extract multiple example cases
     const examples: string[] = problemText.split("Example").slice(1);
 
-    let inputs: any[] = [];
-    let outputs: any[] = [];
+    let inputs: string[] = [];
+    let outputs: string[] = [];
 
     examples.forEach((example: string) => {
         const inputMatch = example.match(/Input:\s*([\s\S]*?)\nOutput:/);
@@ -53,8 +53,8 @@ export async function fetchTestCases(url: string) {
 
 
             // Push cleaned input and output
-            inputs.push(cleanedInput);
-            outputs.push(cleanedOutput);
+            inputs.push(...cleanedInput);
+            outputs.push(...cleanedOutput);
         }
     });
 
@@ -70,19 +70,19 @@ export async function fetchTestCases(url: string) {
 
         // Write inputs to test_inputs.txt with elements separated by spaces and an empty line after each test case
         const inputText = testCases.inputs.map(input => {
-            return input.join(' ') + '\n';  // Join numbers with space and add empty line after each test case
+            return input;  // Join numbers with space and add empty line after each test case
         }).join('\n');  // Separate different test cases by a new line
 
         const inputFilePath = path.join(outputFolder, 'test_inputs.txt');
-        fs.writeFileSync(inputFilePath, inputText);
+        fs.writeFileSync(inputFilePath, String(inputText));
 
         // Write outputs to test_outputs.txt with elements separated by new lines and an empty line after last element
         const outputText = testCases.outputs.map(output => {
-            return output.join('\n') + '\n';  // Join numbers with newline and add empty line after each test case
+            return output.concat('\n') ;  // Join numbers with newline and add empty line after each test case
         }).join('\n');  // Separate different outputs by a new line
-
+        console.log(typeof (outputText));
         const outputFilePath = path.join(outputFolder, 'test_outputs.txt');
-        fs.writeFileSync(outputFilePath, outputText);
+        fs.writeFileSync(outputFilePath, String(outputText));
 
         console.log('Test cases saved successfully in .txt files at:', outputFolder);
 
